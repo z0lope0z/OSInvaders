@@ -11,7 +11,9 @@ public class Movement extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new MovementView(this));
+        MovementView movementView = new MovementView(this);
+        setContentView(movementView);
+        movementView.setOnTouchListener(movementView);
     }
 
 

@@ -5,15 +5,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.lopefied.osinvaders.models.Alien;
+import com.lopefied.osinvaders.models.Hero;
 
 /**
  * Created by lemano on 9/25/13.
  */
-public class MovementView extends SurfaceView implements SurfaceHolder.Callback {
+public class MovementView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
 
     private int xPos;
     private int yPos;
@@ -45,6 +48,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback 
         updateThread = new UpdateThread(this);
         updateThread.setRunning(true);
         updateThread.start();
+        hero = new Hero(height);
     }
 
     @Override
@@ -66,6 +70,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback 
     }
 
     private Alien alien = new Alien();
+    private Hero hero = new Hero(height);
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -73,6 +78,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback 
         canvas.drawColor(Color.WHITE);
         canvas.drawCircle(xPos, yPos, circleRadius, circlePaint);
         alien.draw(canvas);
+        hero.draw(canvas);
     }
 
     public void updatePhysics() {
@@ -111,4 +117,80 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback 
             yPos += yVel;
         }
     }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                hero.setPos(Math.round(motionEvent.getX()), height);
+            } break;
+            case MotionEvent.ACTION_MOVE: {
+                hero.setPos(Math.round(motionEvent.getX()), height);
+            } break;
+        }
+        return true;
+    }
+
+//    @Override
+//    public boolean onTouch(View arg0, MotionEvent arg1) {
+//
+//        switch (arg1.getAction()) {
+//            case MotionEvent.ACTION_DOWN: {
+//                if (gameOver != NOT_YET) {
+//                    reset();
+//                } else if (!hero.isKilled()){
+//
+//                    int x = Math.round(arg1.getX());
+//                    int y = Math.round(arg1.getY());
+//
+//                    boolean intersects = false;
+//
+//                    Rect longRect = new Rect(hero.getBoundRect());
+//
+//                    int width = longRect.width();
+//
+//                    if (x > longRect.right) {
+//                        longRect.right = x + width/2;
+//                    } else if (x < longRect.left){
+//                        longRect.left = x - width/2;
+//                    }
+//
+//                    //Let's calculate a collision
+//                    for (int i = 0; i < maxEnemyBullets; ++i) {
+//                        if (enemyBullets[i].isVisible()) {
+//                            if (Rect.intersects(longRect, enemyBullets[i].getBoundRect()) ) {
+//                                enemyBullets[i].setVisible(false);
+//                                hero.setPos(enemyBullets[i].getBoundRect().left, enemyBullets[i].getBoundRect().top);
+//                                hero.addDamage(enemyBullets[i].getPower());
+//
+//                                intersects = true;
+//                                break;
+//                            }
+//                        }
+//                    }
+//
+//                    if (!intersects) {
+//                        hero.setPos(x,y);
+//                        fireBullet();
+//                    }
+//                }
+//            }break;
+//
+//            case MotionEvent.ACTION_MOVE: {
+//                if (!hero.isKilled()){
+//                    hero.setPos(Math.round(arg1.getX()), Math.round(arg1.getY()));
+//                }
+//            }break;
+//
+//            case MotionEvent.ACTION_UP: {
+//            }
+//            case MotionEvent.ACTION_CANCEL: {
+//            }break;
+//
+//            default:
+//                return false;
+//        }
+//
+//        return true;
+//    }
 }
