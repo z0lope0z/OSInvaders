@@ -11,7 +11,10 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import com.lopefied.osinvaders.models.Alien;
+import com.lopefied.osinvaders.models.Bullet;
 import com.lopefied.osinvaders.models.Hero;
+
+import java.util.Iterator;
 
 /**
  * Created by lemano on 9/25/13.
@@ -71,6 +74,9 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     private Alien alien = new Alien();
     private Hero hero = new Hero(height);
+    private int maxBullets = 5;
+    private int bulletCounter = 0;
+    private Bullet[] bullets = new Bullet[maxBullets];
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -79,6 +85,16 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         canvas.drawCircle(xPos, yPos, circleRadius, circlePaint);
         alien.draw(canvas);
         hero.draw(canvas);
+        for (Bullet bullet : bullets){
+            if (bullet != null)
+                bullet.draw(canvas);
+        }
+    }
+
+    private void launchBullet(){
+        Bullet bullet = new Bullet(this.hero.getXPos(), height);
+        bullets[bulletCounter] = bullet;
+        bulletCounter++;
     }
 
     public void updatePhysics() {
@@ -88,6 +104,18 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             alien.handleWall();
         else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
             alien.handleWall();
+
+        int index = 0;
+        for (Bullet bullet : bullets){
+            if (bullet != null){
+                bullet.update(1);
+                if (bullet.getYPos() < - (bullet.getBoundRect().height()/2)){
+                    bullets[index] = null;
+                    bulletCounter--;
+                }
+            }
+            index++;
+        }
         xPos += xVel;
         yPos += yVel;
         if (yPos - circleRadius < 0 || yPos + circleRadius > height) {
@@ -123,6 +151,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 hero.setPos(Math.round(motionEvent.getX()), height);
+                launchBullet();
             } break;
             case MotionEvent.ACTION_MOVE: {
                 hero.setPos(Math.round(motionEvent.getX()), height);

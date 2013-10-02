@@ -86,6 +86,10 @@ public abstract class GameObject {
         return this.xPos;
     }
 
+    public int getYPos(){
+        return this.yPos;
+    }
+
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
