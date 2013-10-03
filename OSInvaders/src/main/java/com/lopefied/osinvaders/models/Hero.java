@@ -10,8 +10,8 @@ import android.graphics.Paint;
 public class Hero extends GameObject {
     private int circleRadius;
     private Paint circlePaint;
-    private int height = 10;
-    private int width = 10;
+    private int height = 20;
+    private int width = 20;
 
     public Hero(int height) {
         this.xPos = 10;
@@ -31,11 +31,15 @@ public class Hero extends GameObject {
         circlePaint = new Paint();
         circlePaint.setColor(Color.BLUE);
         area.drawCircle(xPos, yPos, circleRadius, circlePaint);
+        Paint boundPaint = new Paint();
+        boundPaint.setColor(Color.RED);
+        area.drawRect(getBoundRect(), boundPaint);
+        area.drawCircle(xPos, yPos, circleRadius, circlePaint);
     }
 
     @Override
     public void update(long timeDelta) {
-        // no need
+        setBoundRect(xPos - this.width / 2, yPos + this.height / 2, xPos + this.width / 2, yPos - this.height / 2);
     }
 
     @Override

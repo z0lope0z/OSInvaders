@@ -1,6 +1,8 @@
 package com.lopefied.osinvaders.models;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 /**
@@ -9,6 +11,7 @@ import android.graphics.Rect;
 public abstract class GameObject {
     private int speed = 5;
     private float floatSpeed;
+    private Boolean isKilled = Boolean.FALSE;
 
     public float getFloatSpeed() {
         return floatSpeed;
@@ -49,7 +52,6 @@ public abstract class GameObject {
     }
 
     public void setBoundRect(int left, int top, int right, int bottom) {
-
         if (aabb == null) {
             aabb = new Rect(left, top, right, bottom);
         } else {
@@ -69,6 +71,12 @@ public abstract class GameObject {
             this.aabb.top = aabb.top;
             this.aabb.bottom = aabb.bottom;
         }
+    }
+
+    public void drawBounds(Canvas area){
+        Paint boundPaint = new Paint();
+        boundPaint.setColor(Color.RED);
+        area.drawRect(getBoundRect(), boundPaint);
     }
 
     public void setPos(int x, int y) {
@@ -96,5 +104,33 @@ public abstract class GameObject {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    public boolean isCollided(GameObject collider, boolean isUpwardsDirection){
+        if (isUpwardsDirection){
+            return (((collider.getYHead() < this.getYTail()) && ((collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing()))));
+        } else {
+            return ((collider.getYHead() > this.getYTail() && (collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing())));
+        }
+    }
+
+    public int getXLeftWing(){
+        return this.getXPos() - (this.getBoundRect().width() / 2);
+    }
+
+    public int getXRightWing(){
+        return this.getXPos() + (this.getBoundRect().width() / 2);
+    }
+
+    public int getYTail(){
+        return this.getYPos() + (this.getBoundRect().height() / 2);
+    }
+
+    public int getYHead(){
+        return this.getYPos() - (this.getBoundRect().height() / 2);
+    }
+
+    public boolean isKilled(){
+        return isKilled;
     }
 }

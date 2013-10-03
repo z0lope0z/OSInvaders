@@ -109,6 +109,8 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         for (Bullet bullet : bullets){
             if (bullet != null){
                 bullet.update(1);
+                if (alien.isCollided(bullet, true))
+                    alien.explode();
                 if (bullet.getYPos() < - (bullet.getBoundRect().height()/2)){
                     bullets[index] = null;
                     bulletCounter--;
