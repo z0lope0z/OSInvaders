@@ -92,59 +92,64 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     }
 
     private void launchBullet(){
-        Bullet bullet = new Bullet(this.hero.getXPos(), height);
-        bullets[bulletCounter] = bullet;
-        bulletCounter++;
+        if (bulletCounter < maxBullets) {
+            Bullet bullet = new Bullet(this.hero.getXPos(), height);
+            bullets[bulletCounter] = bullet;
+            bulletCounter++;
+        }
     }
 
     public void updatePhysics() {
-        alien.update(1);
-        Rect alienRect = alien.getBoundRect();
-        if (alien.getXPos() + alienRect.width() / 2 > width)
-            alien.handleWall();
-        else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
-            alien.handleWall();
+        synchronized (this) {
+            alien.update(1);
+            Rect alienRect = alien.getBoundRect();
+            if (alien.getXPos() + alienRect.width() / 2 > width)
+                alien.handleWall();
+            else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
+                alien.handleWall();
 
-        int index = 0;
-        for (Bullet bullet : bullets){
-            if (bullet != null){
-                bullet.update(1);
-                if (alien.isCollided(bullet, true))
-                    alien.explode();
-                if (bullet.getYPos() < - (bullet.getBoundRect().height()/2)){
-                    bullets[index] = null;
-                    bulletCounter--;
+            int index = 0;
+            for (Bullet bullet : bullets){
+                if (bullet != null){
+                    bullet.update(1);
+                    Boolean isCollided = alien.isCollided(bullet, true);
+                    if (isCollided)
+                        alien.explode();
+                    if ((bullet.getYPos() < -(bullet.getBoundRect().height()/2)) || isCollided){
+                        bullets[index] = null;
+                        bulletCounter--;
+                    }
                 }
+                index++;
             }
-            index++;
-        }
-        xPos += xVel;
-        yPos += yVel;
-        if (yPos - circleRadius < 0 || yPos + circleRadius > height) {
-            // the ball has hit the top or the bottom of the canvas
-            if (yPos - circleRadius < 0) {
-                // the ball has hit the top of the canvas
-                yPos = circleRadius;
-            } else {
-                // the ball has hit the bottom of the canvas
-                yPos = height - circleRadius;
-            }
-            // reverse the y direction of the ball
-            yVel *= -1;
-        }
-        if (xPos - circleRadius < 0 || xPos + circleRadius > width) {
-            // the ball has hit the sides of the canvas
-            if (xPos - circleRadius < 0) {
-                // the ball has hit the left of the canvas
-                xPos = circleRadius;
-            } else {
-                // the ball has hit the right of the canvas
-                xPos = width - circleRadius;
-            }
-            // reverse the x direction of the ball
-            xVel *= -1;
-            xVel *= 1.6;
+            xPos += xVel;
             yPos += yVel;
+            if (yPos - circleRadius < 0 || yPos + circleRadius > height) {
+                // the ball has hit the top or the bottom of the canvas
+                if (yPos - circleRadius < 0) {
+                    // the ball has hit the top of the canvas
+                    yPos = circleRadius;
+                } else {
+                    // the ball has hit the bottom of the canvas
+                    yPos = height - circleRadius;
+                }
+                // reverse the y direction of the ball
+                yVel *= -1;
+            }
+            if (xPos - circleRadius < 0 || xPos + circleRadius > width) {
+                // the ball has hit the sides of the canvas
+                if (xPos - circleRadius < 0) {
+                    // the ball has hit the left of the canvas
+                    xPos = circleRadius;
+                } else {
+                    // the ball has hit the right of the canvas
+                    xPos = width - circleRadius;
+                }
+                // reverse the x direction of the ball
+                xVel *= -1;
+                xVel *= 1.6;
+                yPos += yVel;
+            }
         }
     }
 
