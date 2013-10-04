@@ -48,7 +48,7 @@ public class Bitmaps {
             }
             break;
             case HERO: {
-                rId = R.drawable.titan;
+                rId = R.drawable.hero_sheet_29x64;
             }
             break;
             case BULLET: {

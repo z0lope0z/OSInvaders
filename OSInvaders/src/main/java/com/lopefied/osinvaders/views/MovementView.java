@@ -133,6 +133,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                 }
                 index++;
             }
+            hero.update(1);
             alien.update(1);
             Rect alienRect = alien.getBoundRect();
             if (alien.getXPos() + alienRect.width() / 2 > width)

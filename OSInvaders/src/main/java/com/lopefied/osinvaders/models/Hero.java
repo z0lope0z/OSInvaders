@@ -14,14 +14,22 @@ import com.lopefied.osinvaders.views.Bitmaps;
 public class Hero extends GameObject {
     private int circleRadius;
     private Paint circlePaint;
-    private int height = 80;
-    private int width = 40;
+    private int height = 64;
+    private int width = 29;
 
     private Bitmap animation;
+
+    private long frameTimer;
+    private int fps = 10;
+    private Rect sRectangle;
+    private int maxFrames = 3;
+    private int currentFrame = 0;
+
     public Hero(int height) {
         this.xPos = 10;
         this.yPos = height - 20;
         setBoundRect(xPos - width / 2, yPos - this.height - 10, xPos + width / 2, yPos + this.height / 2);
+        sRectangle = new Rect(0, 0, width, this.height);
         this.animation = Bitmaps.getBitmap(Bitmaps.HERO);
     }
 
@@ -29,7 +37,7 @@ public class Hero extends GameObject {
     public void setPos(int x, int y) {
         this.xPos = x;
         //this.yPos = y;
-        setBoundRect(xPos - this.width / 2, yPos - this.height  - 10, xPos + this.width / 2, yPos + this.height/2);
+        setBoundRect(xPos - this.width / 2, yPos - this.height - 10, xPos + this.width / 2, yPos + this.height / 2);
     }
 
     @Override
@@ -42,7 +50,7 @@ public class Hero extends GameObject {
         Paint boundPaint = new Paint();
         boundPaint.setColor(Color.RED);
         Rect rect = new Rect(getXPos(), getYHead(), getXPos() + width, getYHead() + height);
-        area.drawBitmap(animation, null, rect, null);
+        area.drawBitmap(animation, sRectangle, rect, null);
         //area.drawRect(getBoundRect(), boundPaint);
         //area.drawCircle(xPos, yPos, circleRadius, circlePaint);
     }
@@ -53,6 +61,15 @@ public class Hero extends GameObject {
 
     @Override
     public void update(long timeDelta) {
+        if (frameTimer % fps == 0) {
+            sRectangle.left = currentFrame * width;
+            sRectangle.right = sRectangle.left + width;
+            currentFrame++;
+        }
+        if (currentFrame > maxFrames) {
+            currentFrame = 0;
+        }
+        frameTimer++;
     }
 
     @Override
