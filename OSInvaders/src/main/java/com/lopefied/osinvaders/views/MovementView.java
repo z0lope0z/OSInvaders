@@ -60,7 +60,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         updateThread.setRunning(true);
         updateThread.start();
         hero = new Hero(height);
-        rectParallax = new Rect(0, 0, width, height);
+        rectParallax = new Rect(0, parallax.getHeight() - height, width, parallax.getHeight());
         rectCanvas = new Rect(0, 0, width, height);
     }
 
@@ -141,14 +141,14 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             else if (alien.getXPos() - alienRect.width() / 2 < 0 - (alienRect.width() / 2))
                 alien.handleWall();
 
-            if (parallaxCounter % 8 == 0) {
+            if (parallaxCounter % 15 == 0) {
                 if ((rectParallax != null) && (rectCanvas != null)) {
-                    if (rectParallax.bottom < parallax.getHeight()) {
-                        rectParallax.top += 1;
-                        rectParallax.bottom += 1;
+                    if (rectParallax.top > 0) {
+                        rectParallax.top -= 1;
+                        rectParallax.bottom -= 1;
                     } else {
-                        rectParallax.bottom = rectCanvas.height();
-                        rectParallax.top = 0;
+                        rectParallax.bottom = parallax.getHeight();
+                        rectParallax.top = parallax.getHeight() - rectCanvas.height();
                     }
                 }
             }

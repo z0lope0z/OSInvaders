@@ -45,14 +45,10 @@ public class Hero extends GameObject {
         circleRadius = 10;
         circlePaint = new Paint();
         circlePaint.setColor(Color.BLUE);
-        //area.drawBitmap(this.animation, null, getBoundRect(), null);
-        //area.drawCircle(xPos, yPos, circleRadius, circlePaint);
         Paint boundPaint = new Paint();
         boundPaint.setColor(Color.RED);
         Rect rect = new Rect(getXPos(), getYHead(), getXPos() + width, getYHead() + height);
         area.drawBitmap(animation, sRectangle, rect, null);
-        //area.drawRect(getBoundRect(), boundPaint);
-        //area.drawCircle(xPos, yPos, circleRadius, circlePaint);
     }
 
     public int getGunOffset() {
