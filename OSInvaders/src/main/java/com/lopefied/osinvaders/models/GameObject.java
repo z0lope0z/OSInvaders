@@ -108,7 +108,9 @@ public abstract class GameObject {
 
     public boolean isCollided(GameObject collider, boolean isUpwardsDirection){
         if (isUpwardsDirection){
-            return (((collider.getYHead() < this.getYTail()) && ((collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing()))));
+            //return collider.getYHead() < this.getYTail();
+            return this.getBoundRect().intersect(collider.getBoundRect());
+//            return (((collider.getYHead() < this.getYTail()) && ((collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing()))));
         } else {
             return ((collider.getYHead() > this.getYTail() && (collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing())));
         }

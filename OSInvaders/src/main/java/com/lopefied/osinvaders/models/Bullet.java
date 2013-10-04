@@ -14,9 +14,9 @@ public class Bullet extends GameObject {
     private int height = 20;
     private int width = 20;
 
-    public Bullet(int xPos, int height) {
+    public Bullet(int xPos, int height, int heroOffset) {
         this.xPos = xPos;
-        this.yPos = height - 20;
+        this.yPos = height - heroOffset;
         setSpeed(20);
         setBoundRect(xPos - width / 2, yPos + this.height / 2, xPos + width / 2, yPos - this.height / 2);
     }

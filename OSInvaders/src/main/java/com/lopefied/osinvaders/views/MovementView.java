@@ -33,12 +33,14 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     public MovementView(Context context) {
         super(context);
+        Bitmaps.createInstance(context);
         getHolder().addCallback(this);
         circleRadius = 10;
         circlePaint = new Paint();
         circlePaint.setColor(Color.BLUE);
         xVel = 2;
         yVel = 2;
+        alien = new Alien();
     }
 
     @Override
@@ -72,8 +74,8 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         }
     }
 
-    private Alien alien = new Alien();
-    private Hero hero = new Hero(height);
+    private Alien alien;
+    private Hero hero;
     private int maxBullets = 5;
     private int bulletCounter = 0;
     private Bullet[] bullets = new Bullet[maxBullets];
@@ -84,6 +86,9 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         canvas.drawColor(Color.WHITE);
         canvas.drawCircle(xPos, yPos, circleRadius, circlePaint);
         alien.draw(canvas);
+        if (hero == null){
+            hero = new Hero(canvas.getHeight());
+        }
         hero.draw(canvas);
         for (Bullet bullet : bullets){
             if (bullet != null)
@@ -93,7 +98,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     private void launchBullet(){
         if (bulletCounter < maxBullets) {
-            Bullet bullet = new Bullet(this.hero.getXPos(), height);
+            Bullet bullet = new Bullet(this.hero.getXPos(), height, hero.getGunOffset());
             bullets[bulletCounter] = bullet;
             bulletCounter++;
         }
@@ -101,13 +106,6 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     public void updatePhysics() {
         synchronized (this) {
-            alien.update(1);
-            Rect alienRect = alien.getBoundRect();
-            if (alien.getXPos() + alienRect.width() / 2 > width)
-                alien.handleWall();
-            else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
-                alien.handleWall();
-
             int index = 0;
             for (Bullet bullet : bullets){
                 if (bullet != null){
@@ -122,34 +120,12 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                 }
                 index++;
             }
-            xPos += xVel;
-            yPos += yVel;
-            if (yPos - circleRadius < 0 || yPos + circleRadius > height) {
-                // the ball has hit the top or the bottom of the canvas
-                if (yPos - circleRadius < 0) {
-                    // the ball has hit the top of the canvas
-                    yPos = circleRadius;
-                } else {
-                    // the ball has hit the bottom of the canvas
-                    yPos = height - circleRadius;
-                }
-                // reverse the y direction of the ball
-                yVel *= -1;
-            }
-            if (xPos - circleRadius < 0 || xPos + circleRadius > width) {
-                // the ball has hit the sides of the canvas
-                if (xPos - circleRadius < 0) {
-                    // the ball has hit the left of the canvas
-                    xPos = circleRadius;
-                } else {
-                    // the ball has hit the right of the canvas
-                    xPos = width - circleRadius;
-                }
-                // reverse the x direction of the ball
-                xVel *= -1;
-                xVel *= 1.6;
-                yPos += yVel;
-            }
+            alien.update(1);
+            Rect alienRect = alien.getBoundRect();
+            if (alien.getXPos() + alienRect.width() / 2 > width)
+                alien.handleWall();
+            else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
+                alien.handleWall();
         }
     }
 

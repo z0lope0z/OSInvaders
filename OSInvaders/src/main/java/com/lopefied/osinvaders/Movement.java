@@ -1,5 +1,7 @@
 package com.lopefied.osinvaders;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
