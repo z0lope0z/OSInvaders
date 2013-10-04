@@ -1,6 +1,7 @@
 package com.lopefied.osinvaders.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,8 +14,6 @@ import android.view.View;
 import com.lopefied.osinvaders.models.Alien;
 import com.lopefied.osinvaders.models.Bullet;
 import com.lopefied.osinvaders.models.Hero;
-
-import java.util.Iterator;
 
 /**
  * Created by lemano on 9/25/13.
@@ -30,6 +29,11 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     private int circleRadius;
     private Paint circlePaint;
     UpdateThread updateThread;
+    private Bitmap background;
+    private Bitmap parallax;
+    private int parallaxHeight;
+    private Rect rectParallax;
+    private Rect rectCanvas;
 
     public MovementView(Context context) {
         super(context);
@@ -41,6 +45,8 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         xVel = 2;
         yVel = 2;
         alien = new Alien();
+        background = Bitmaps.getBitmap(Bitmaps.FARBACK);
+        parallax = Bitmaps.getBitmap(Bitmaps.STARFIELD);
     }
 
     @Override
@@ -54,6 +60,8 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         updateThread.setRunning(true);
         updateThread.start();
         hero = new Hero(height);
+        rectParallax = new Rect(0, 0, width, height);
+        rectCanvas = new Rect(0, 0, width, height);
     }
 
     @Override
@@ -85,18 +93,21 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         // you can always experiment by removing this line if you wish!
         canvas.drawColor(Color.WHITE);
         canvas.drawCircle(xPos, yPos, circleRadius, circlePaint);
+        canvas.drawBitmap(background, 0, 0, null);
+        if ((parallax != null) && (rectCanvas != null))
+            canvas.drawBitmap(parallax, rectParallax, rectCanvas, null);
         alien.draw(canvas);
-        if (hero == null){
+        if (hero == null) {
             hero = new Hero(canvas.getHeight());
         }
         hero.draw(canvas);
-        for (Bullet bullet : bullets){
+        for (Bullet bullet : bullets) {
             if (bullet != null)
                 bullet.draw(canvas);
         }
     }
 
-    private void launchBullet(){
+    private void launchBullet() {
         if (bulletCounter < maxBullets) {
             Bullet bullet = new Bullet(this.hero.getXPos(), height, hero.getGunOffset());
             bullets[bulletCounter] = bullet;
@@ -104,16 +115,18 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         }
     }
 
+    private int parallaxCounter = 0;
+
     public void updatePhysics() {
         synchronized (this) {
             int index = 0;
-            for (Bullet bullet : bullets){
-                if (bullet != null){
+            for (Bullet bullet : bullets) {
+                if (bullet != null) {
                     bullet.update(1);
                     Boolean isCollided = alien.isCollided(bullet, true);
                     if (isCollided)
                         alien.explode();
-                    if ((bullet.getYPos() < -(bullet.getBoundRect().height()/2)) || isCollided){
+                    if ((bullet.getYPos() < -(bullet.getBoundRect().height() / 2)) || isCollided) {
                         bullets[index] = null;
                         bulletCounter--;
                     }
@@ -124,8 +137,21 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             Rect alienRect = alien.getBoundRect();
             if (alien.getXPos() + alienRect.width() / 2 > width)
                 alien.handleWall();
-            else if (alien.getXPos() - alienRect.width() / 2 < 0-(alienRect.width() / 2))
+            else if (alien.getXPos() - alienRect.width() / 2 < 0 - (alienRect.width() / 2))
                 alien.handleWall();
+
+            if (parallaxCounter % 8 == 0) {
+                if ((rectParallax != null) && (rectCanvas != null)) {
+                    if (rectParallax.bottom < parallax.getHeight()) {
+                        rectParallax.top += 1;
+                        rectParallax.bottom += 1;
+                    } else {
+                        rectParallax.bottom = rectCanvas.height();
+                        rectParallax.top = 0;
+                    }
+                }
+            }
+            parallaxCounter++;
         }
     }
 
@@ -135,10 +161,12 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             case MotionEvent.ACTION_DOWN: {
                 hero.setPos(Math.round(motionEvent.getX()), height);
                 launchBullet();
-            } break;
+            }
+            break;
             case MotionEvent.ACTION_MOVE: {
                 hero.setPos(Math.round(motionEvent.getX()), height);
-            } break;
+            }
+            break;
         }
         return true;
     }

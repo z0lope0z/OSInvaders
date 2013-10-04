@@ -11,8 +11,8 @@ import android.util.Log;
 public class Bullet extends GameObject {
     private int circleRadius;
     private Paint circlePaint;
-    private int height = 20;
-    private int width = 20;
+    private int height = 10;
+    private int width = 10;
 
     public Bullet(int xPos, int height, int heroOffset) {
         this.xPos = xPos;
@@ -32,9 +32,9 @@ public class Bullet extends GameObject {
         circleRadius = width / 2;
         circlePaint = new Paint();
         circlePaint.setColor(Color.BLUE);
-        Paint boundPaint = new Paint();
-        boundPaint.setColor(Color.RED);
-        area.drawRect(getBoundRect(), boundPaint);
+//        Paint boundPaint = new Paint();
+//        boundPaint.setColor(Color.RED);
+//        area.drawRect(getBoundRect(), boundPaint);
         area.drawCircle(xPos, yPos, circleRadius, circlePaint);
     }
 
