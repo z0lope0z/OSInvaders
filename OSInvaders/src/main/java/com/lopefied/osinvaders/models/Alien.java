@@ -17,9 +17,9 @@ public class Alien extends GameObject {
     private int height = 180;
     private int width = 180;
 
-    private int explodeTime = 10;
-    private Boolean isExploding = Boolean.FALSE;
-    private int elapsedExplodeTime = 0;
+    private int damageTime = 10;
+    private Boolean isDamaged = Boolean.FALSE;
+    private int elapsedDamageTime = 0;
     private Bitmap animation;
 
 
@@ -34,23 +34,46 @@ public class Alien extends GameObject {
     private EnemyListener enemyListener;
     private int bulletInterval = 10;
 
-    private int life = 5;
+    private int life = 2;
+    private int explodeTime = 33;
+    private Boolean isExploding = Boolean.FALSE;
+    private int elapsedExplodingTime = 0;
+    private int explodeWidth = 128;
+    private int explodeHeight = 128;
+    private Bitmap explodeAnimation;
+    private long explodeFrameTimer;
+    private int explodeFps = 10;
+    private Rect explodeSRectangle;
+    private int explodeFrames = 33;
+    private int explodeCurrentFrame = 0;
+
     public Alien(EnemyListener enemyListener) {
         this.enemyListener = enemyListener;
         this.xPos = 10;
         this.yPos = 200;
         setBoundRect(xPos - width / 2, yPos + height / 2, xPos + width / 2, yPos - height / 2);
         animation = Bitmaps.getBitmap(Bitmaps.ALIEN_GREEN_SHEET);
+        explodeAnimation = Bitmaps.getBitmap(Bitmaps.EXPLODE_ALIEN);
         sRectangle = new Rect(0, 0, this.width, this.height);
+        explodeSRectangle = new Rect(0, 0, this.explodeWidth, this.explodeHeight);
     }
 
     public void explode() {
         this.isExploding = Boolean.TRUE;
     }
 
+    public void damage() {
+        this.isDamaged = Boolean.TRUE;
+        life--;
+    }
+
+    public boolean isKilled() {
+        return life <= 0;
+    }
+
     public void reset() {
-        this.isExploding = Boolean.FALSE;
-        this.elapsedExplodeTime = 0;
+        this.isDamaged = Boolean.FALSE;
+        this.elapsedDamageTime = 0;
     }
 
     @Override
@@ -61,8 +84,13 @@ public class Alien extends GameObject {
 
     @Override
     public void draw(Canvas area) {
+        if (isExploding){
+            Rect rect = new Rect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
+            area.drawBitmap(explodeAnimation, explodeSRectangle, rect, null);
+            return;
+        }
         circleRadius = 50;
-        if (isExploding) {
+        if (isDamaged) {
             circleRadius = 100;
             circlePaint = new Paint();
             circlePaint.setColor(Color.BLUE);
@@ -87,14 +115,30 @@ public class Alien extends GameObject {
 
     @Override
     public void update(long timeDelta) {
+        if (isExploding){
+            // end game
+            if (explodeCurrentFrame > explodeFrames){
+                enemyListener.explosionComplete(this);
+            } else {
+                if ((frameTimer % 5) == 0) {
+                    explodeSRectangle.left = explodeCurrentFrame * explodeWidth;
+                    explodeSRectangle.top = 0;
+                    explodeSRectangle.right = explodeSRectangle.left + explodeWidth;
+                    explodeSRectangle.bottom = explodeHeight;
+                    explodeCurrentFrame++;
+                }
+            }
+            frameTimer++;
+            return;
+        }
+
         this.xPos = this.xPos + getSpeed();
 //        setBoundRect(xPos - width / 2, yPos + height / 2, xPos + width / 2, yPos - height / 2);
         setBoundRect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
         //setBoundRect(xPos - (this.width / 2), yPos - (this.height / 2), xPos + width / 2, yPos - this.height / 2);
-        elapsedExplodeTime++;
-        if (elapsedExplodeTime > 10)
+        elapsedDamageTime++;
+        if (elapsedDamageTime > 10)
             reset();
-        frameTimer++;
         if ((frameTimer % fps) == 0) {
             if (currentFrame == frames) {
                 currentFrame = 0;
@@ -116,9 +160,12 @@ public class Alien extends GameObject {
             }
         }
 
-        if (frameTimer % bulletInterval == 0){
+        if (frameTimer == 0) {
+            enemyListener.launchBullet(this);
+        } else if ((frameTimer % bulletInterval == 0) && (frameTimer >= bulletInterval)) {
             enemyListener.launchBullet(this);
         }
+        frameTimer++;
     }
 
     @Override

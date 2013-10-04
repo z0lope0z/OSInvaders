@@ -18,6 +18,8 @@ public class Bitmaps {
     public static final int ALIEN_GREEN_SHEET = 5;
     public static final int FARBACK = 6;
     public static final int STARFIELD = 7;
+    public static final int EXPLODE_ALIEN = 8;
+    public static final int EXPLODE_SHIP = 9;
 
     private Bitmaps() {
     }
@@ -67,6 +69,14 @@ public class Bitmaps {
             }
             break;
             case STARFIELD: {
+                rId = R.drawable.starfield;
+            }
+            break;
+            case EXPLODE_ALIEN: {
+                rId = R.drawable.explosion_a_sheet_5210x128;
+            }
+            break;
+            case EXPLODE_SHIP: {
                 rId = R.drawable.starfield;
             }
             break;

@@ -101,6 +101,11 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                 enemyBulletCounter++;
             }
         }
+
+        @Override
+        public void explosionComplete(Alien alienBoss) {
+            endGame(Boolean.TRUE);
+        }
     };
 
     @Override
@@ -136,19 +141,30 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     private int parallaxCounter = 0;
 
+    private void endGame(Boolean isWinner){
+        //TODO
+
+    }
+
     public void updatePhysics() {
         synchronized (this) {
             int index = 0;
             for (Bullet bullet : bullets) {
+                bulletCounter = maxBullets;
                 if (bullet != null) {
                     bullet.update(1);
                     Boolean isCollided = alien.isCollided(bullet, true);
-                    if (isCollided)
-                        alien.explode();
+                    if (isCollided) {
+                        alien.damage();
+                        if (alien.isKilled()){
+                            alien.explode();
+                        }
+                    }
                     if ((bullet.getYPos() < -(bullet.getBoundRect().height() / 2)) || isCollided) {
                         bullets[index] = null;
-                        bulletCounter--;
                     }
+                } else {
+                    bulletCounter--;
                 }
                 index++;
             }
@@ -176,7 +192,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             else if (alien.getXPos() - alienRect.width() / 2 < 0 - (alienRect.width() / 2))
                 alien.handleWall();
 
-            if (parallaxCounter % 15 == 0) {
+            if (parallaxCounter % 7 == 0) {
                 if ((rectParallax != null) && (rectCanvas != null)) {
                     if (rectParallax.top > 0) {
                         rectParallax.top -= 1;

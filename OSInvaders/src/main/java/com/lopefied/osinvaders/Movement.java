@@ -1,10 +1,10 @@
 package com.lopefied.osinvaders;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.lopefied.osinvaders.views.MovementView;
 
@@ -12,6 +12,10 @@ public class Movement extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         MovementView movementView = new MovementView(this);
         setContentView(movementView);

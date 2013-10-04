@@ -5,4 +5,5 @@ package com.lopefied.osinvaders.models;
  */
 public interface EnemyListener {
     public void launchBullet(Alien alien);
+    public void explosionComplete(Alien alienBoss);
 }
