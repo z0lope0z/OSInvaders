@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 
 import com.lopefied.osinvaders.views.Bitmaps;
 
@@ -15,18 +14,27 @@ import com.lopefied.osinvaders.views.Bitmaps;
 public class Alien extends GameObject {
     private int circleRadius;
     private Paint circlePaint;
-    private int height = 150;
-    private int width = 150;
+    private int height = 30;
+    private int width = 40;
 
     private int explodeTime = 10;
     private Boolean isExploding = Boolean.FALSE;
     private int elapsedExplodeTime = 0;
     private Bitmap animation;
+
+
+    private long frameTimer;
+    private int fps = 10;
+    private Rect sRectangle;
+    private int frames = 6;
+    private int currentFrame = 0;
+
     public Alien() {
         this.xPos = 10;
         this.yPos = 200;
         setBoundRect(xPos - width / 2, yPos + height / 2, xPos + width / 2, yPos - height / 2);
-        animation = Bitmaps.getBitmap(Bitmaps.ALIEN1);
+        animation = Bitmaps.getBitmap(Bitmaps.ALIEN_SHEET);
+        sRectangle = new Rect(0, 0, this.width, this.height);
     }
 
     public void explode() {
@@ -53,6 +61,7 @@ public class Alien extends GameObject {
             circlePaint.setColor(Color.BLUE);
             area.drawCircle(xPos, yPos, circleRadius, circlePaint);
         }
+
         //area.drawRect(getBoundRect(), boundPaint);
 
         //Log.d("stuff", String.valueOf(animation));
@@ -62,7 +71,13 @@ public class Alien extends GameObject {
         //area.drawBitmap(animation, getXLeftWing(), getYHead(), null);
         //Rect rect = new Rect(10, 10, 20, 20);
         Rect rect = new Rect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
-        area.drawBitmap(animation, null, rect, null);
+        area.drawBitmap(animation, sRectangle, rect, null);
+
+
+        //sample
+//        Rect sRect2 = new Rect(0, 0, 30, 40);
+//        Rect rect2 = new Rect(100, 0, 30, 40);
+//        area.drawBitmap(animation, sRect2, rect2, null);
     }
 
     @Override
@@ -74,6 +89,16 @@ public class Alien extends GameObject {
         elapsedExplodeTime++;
         if (elapsedExplodeTime > 10)
             reset();
+        frameTimer++;
+        if ((frameTimer % fps) == 0) {
+            if (currentFrame == frames){
+                currentFrame = 0;
+            } else {
+                currentFrame++;
+            }
+            sRectangle.top = height * currentFrame;
+            sRectangle.bottom = sRectangle.top + height;
+        }
     }
 
     @Override
