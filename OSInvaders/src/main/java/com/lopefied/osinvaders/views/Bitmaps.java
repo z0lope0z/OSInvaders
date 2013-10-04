@@ -15,6 +15,7 @@ public class Bitmaps {
     public static final int HERO = 2;
     public static final int BULLET = 3;
     public static final int ALIEN_SHEET = 4;
+    public static final int ALIEN_GREEN_SHEET = 5;
 
     private Bitmaps() {
     }
@@ -53,6 +54,10 @@ public class Bitmaps {
             }
             case ALIEN_SHEET: {
                 rId = R.drawable.alien_sheet_40x30;
+            }
+            break;
+            case ALIEN_GREEN_SHEET: {
+                rId = R.drawable.greenalien_sheet_180x180;
             }
             break;
         }

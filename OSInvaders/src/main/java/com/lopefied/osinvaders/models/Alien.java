@@ -14,8 +14,8 @@ import com.lopefied.osinvaders.views.Bitmaps;
 public class Alien extends GameObject {
     private int circleRadius;
     private Paint circlePaint;
-    private int height = 30;
-    private int width = 40;
+    private int height = 180;
+    private int width = 180;
 
     private int explodeTime = 10;
     private Boolean isExploding = Boolean.FALSE;
@@ -26,14 +26,16 @@ public class Alien extends GameObject {
     private long frameTimer;
     private int fps = 10;
     private Rect sRectangle;
-    private int frames = 6;
+    private int frames = 2;
     private int currentFrame = 0;
+
+    private Boolean isGoingLeft = Boolean.FALSE;
 
     public Alien() {
         this.xPos = 10;
         this.yPos = 200;
         setBoundRect(xPos - width / 2, yPos + height / 2, xPos + width / 2, yPos - height / 2);
-        animation = Bitmaps.getBitmap(Bitmaps.ALIEN_SHEET);
+        animation = Bitmaps.getBitmap(Bitmaps.ALIEN_GREEN_SHEET);
         sRectangle = new Rect(0, 0, this.width, this.height);
     }
 
@@ -72,8 +74,6 @@ public class Alien extends GameObject {
         //Rect rect = new Rect(10, 10, 20, 20);
         Rect rect = new Rect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
         area.drawBitmap(animation, sRectangle, rect, null);
-
-
         //sample
 //        Rect sRect2 = new Rect(0, 0, 30, 40);
 //        Rect rect2 = new Rect(100, 0, 30, 40);
@@ -91,18 +91,34 @@ public class Alien extends GameObject {
             reset();
         frameTimer++;
         if ((frameTimer % fps) == 0) {
-            if (currentFrame == frames){
+            if (currentFrame == frames) {
                 currentFrame = 0;
             } else {
                 currentFrame++;
             }
-            sRectangle.top = height * currentFrame;
-            sRectangle.bottom = sRectangle.top + height;
+            if (!isGoingLeft) {
+                // if going right
+                sRectangle.top = 0;
+                sRectangle.bottom = height;
+                sRectangle.left = width * currentFrame;
+                sRectangle.right = sRectangle.left + width;
+            } else {
+                // if going left
+                sRectangle.top = height;
+                sRectangle.bottom = 2 * height;
+                sRectangle.left = width * currentFrame;
+                sRectangle.right = sRectangle.left + width;
+            }
         }
     }
 
     @Override
     public void handleWall() {
         setSpeed(getSpeed() * -1);
+        if (getSpeed() < 0) {
+            isGoingLeft = Boolean.TRUE;
+        } else {
+            isGoingLeft = Boolean.FALSE;
+        }
     }
 }
