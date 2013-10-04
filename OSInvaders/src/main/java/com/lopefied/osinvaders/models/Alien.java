@@ -31,7 +31,12 @@ public class Alien extends GameObject {
 
     private Boolean isGoingLeft = Boolean.FALSE;
 
-    public Alien() {
+    private EnemyListener enemyListener;
+    private int bulletInterval = 10;
+
+    private int life = 5;
+    public Alien(EnemyListener enemyListener) {
+        this.enemyListener = enemyListener;
         this.xPos = 10;
         this.yPos = 200;
         setBoundRect(xPos - width / 2, yPos + height / 2, xPos + width / 2, yPos - height / 2);
@@ -109,6 +114,10 @@ public class Alien extends GameObject {
                 sRectangle.left = width * currentFrame;
                 sRectangle.right = sRectangle.left + width;
             }
+        }
+
+        if (frameTimer % bulletInterval == 0){
+            enemyListener.launchBullet(this);
         }
     }
 

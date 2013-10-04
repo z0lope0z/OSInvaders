@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -13,6 +14,8 @@ import android.view.View;
 
 import com.lopefied.osinvaders.models.Alien;
 import com.lopefied.osinvaders.models.Bullet;
+import com.lopefied.osinvaders.models.EnemyBullet;
+import com.lopefied.osinvaders.models.EnemyListener;
 import com.lopefied.osinvaders.models.Hero;
 
 /**
@@ -28,7 +31,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     private int height;
     private int circleRadius;
     private Paint circlePaint;
-    UpdateThread updateThread;
+    private UpdateThread updateThread;
     private Bitmap background;
     private Bitmap parallax;
     private int parallaxHeight;
@@ -44,7 +47,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         circlePaint.setColor(Color.BLUE);
         xVel = 2;
         yVel = 2;
-        alien = new Alien();
+        alien = new Alien(enemyListener);
         background = Bitmaps.getBitmap(Bitmaps.FARBACK);
         parallax = Bitmaps.getBitmap(Bitmaps.STARFIELD);
     }
@@ -66,7 +69,6 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
-
     }
 
     @Override
@@ -85,8 +87,21 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     private Alien alien;
     private Hero hero;
     private int maxBullets = 5;
-    private int bulletCounter = 0;
+    private int maxEnemyBullets = 5;
     private Bullet[] bullets = new Bullet[maxBullets];
+    private int bulletCounter = 0;
+    private EnemyBullet[] enemyBullets = new EnemyBullet[maxEnemyBullets];
+    private int enemyBulletCounter = 0;
+    private EnemyListener enemyListener = new EnemyListener() {
+        @Override
+        public void launchBullet(Alien alien) {
+            if (enemyBulletCounter < maxBullets) {
+                EnemyBullet enemyBullet = new EnemyBullet(alien);
+                enemyBullets[enemyBulletCounter] = enemyBullet;
+                enemyBulletCounter++;
+            }
+        }
+    };
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -104,6 +119,10 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         for (Bullet bullet : bullets) {
             if (bullet != null)
                 bullet.draw(canvas);
+        }
+        for (EnemyBullet enemyBullet : enemyBullets) {
+            if (enemyBullet != null)
+                enemyBullet.draw(canvas);
         }
     }
 
@@ -133,6 +152,22 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                 }
                 index++;
             }
+            index = 0;
+            for (EnemyBullet enemyBullet : enemyBullets) {
+                if (enemyBullet != null) {
+                    enemyBullet.update(1);
+                    Boolean isCollided = hero.isCollided(enemyBullet, false);
+                    if (isCollided) {
+                        hero.damage();
+                    }
+                    if (enemyBullet.getYPos() > rectCanvas.height() || isCollided) {
+                        enemyBullets[index] = null;
+                        enemyBulletCounter--;
+                    }
+                }
+                index++;
+            }
+
             hero.update(1);
             alien.update(1);
             Rect alienRect = alien.getBoundRect();

@@ -107,13 +107,13 @@ public abstract class GameObject {
     }
 
     public boolean isCollided(GameObject collider, boolean isUpwardsDirection){
-        if (isUpwardsDirection){
-            //return collider.getYHead() < this.getYTail();
-            return this.getBoundRect().intersect(collider.getBoundRect());
-//            return (((collider.getYHead() < this.getYTail()) && ((collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing()))));
-        } else {
-            return ((collider.getYHead() > this.getYTail() && (collider.getXLeftWing() < this.getXRightWing() && collider.getXRightWing() > this.getXRightWing())));
-        }
+        Rect rect = collider.getBoundRect();
+        return this.getBoundRect().intersects(rect.left, rect.top, rect.right, rect.bottom);
+//        if (isUpwardsDirection){
+//            return this.getBoundRect().intersects(rect.left, rect.top, rect.right, rect.bottom);
+//        } else {
+//            return this.getBoundRect().intersect(collider.getBoundRect());
+//        }
     }
 
     public int getXLeftWing(){

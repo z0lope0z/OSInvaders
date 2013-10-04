@@ -25,19 +25,37 @@ public class Hero extends GameObject {
     private int maxFrames = 3;
     private int currentFrame = 0;
 
+    private int life = 3;
+    private int hitTime = 20;
+    private int hitCounter = 0;
+    private Boolean isHit = Boolean.FALSE;
+
     public Hero(int height) {
         this.xPos = 10;
         this.yPos = height - 20;
-        setBoundRect(xPos - width / 2, yPos - this.height - 10, xPos + width / 2, yPos + this.height / 2);
+        setBoundRect(xPos - width / 2, yPos - this.height, xPos + width / 2, yPos + this.height / 2);
         sRectangle = new Rect(0, 0, width, this.height);
         this.animation = Bitmaps.getBitmap(Bitmaps.HERO);
+    }
+
+    public void damage() {
+        life--;
+        isHit = Boolean.TRUE;
+    }
+
+    public boolean isKilled(){
+        return life <= 0;
+    }
+
+    private void resetHit(){
+        isHit = Boolean.FALSE;
+        hitCounter=0;
     }
 
     @Override
     public void setPos(int x, int y) {
         this.xPos = x;
-        //this.yPos = y;
-        setBoundRect(xPos - this.width / 2, yPos - this.height - 10, xPos + this.width / 2, yPos + this.height / 2);
+        setBoundRect(xPos - this.width / 2, yPos - this.height, xPos + this.width / 2, yPos + this.height / 2);
     }
 
     @Override
@@ -47,7 +65,10 @@ public class Hero extends GameObject {
         circlePaint.setColor(Color.BLUE);
         Paint boundPaint = new Paint();
         boundPaint.setColor(Color.RED);
-        Rect rect = new Rect(getXPos(), getYHead(), getXPos() + width, getYHead() + height);
+        if (isHit){
+            area.drawRect(getBoundRect(), boundPaint);
+        }
+        Rect rect = new Rect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
         area.drawBitmap(animation, sRectangle, rect, null);
     }
 
@@ -66,6 +87,14 @@ public class Hero extends GameObject {
             currentFrame = 0;
         }
         frameTimer++;
+        //hit
+        if (isHit) {
+            if (hitCounter < hitTime){
+                hitCounter++;
+            } else {
+                resetHit();
+            }
+        }
     }
 
     @Override
