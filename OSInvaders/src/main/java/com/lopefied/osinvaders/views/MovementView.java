@@ -1,5 +1,6 @@
 package com.lopefied.osinvaders.views;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,18 +12,22 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.lopefied.osinvaders.models.Alien;
 import com.lopefied.osinvaders.models.Bullet;
 import com.lopefied.osinvaders.models.EnemyBullet;
 import com.lopefied.osinvaders.models.EnemyListener;
 import com.lopefied.osinvaders.models.Hero;
+import com.lopefied.osinvaders.models.HeroListener;
 
 /**
  * Created by lemano on 9/25/13.
  */
 public class MovementView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
 
+    private GameFinishedListener gameFinishedListener;
+    private Context mContext;
     private int xPos;
     private int yPos;
     private float xVel;
@@ -38,7 +43,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     private Rect rectParallax;
     private Rect rectCanvas;
 
-    public MovementView(Context context) {
+    public MovementView(Context context, GameFinishedListener gameFinishedListener) {
         super(context);
         Bitmaps.createInstance(context);
         getHolder().addCallback(this);
@@ -50,6 +55,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         alien = new Alien(enemyListener);
         background = Bitmaps.getBitmap(Bitmaps.FARBACK);
         parallax = Bitmaps.getBitmap(Bitmaps.STARFIELD);
+        this.gameFinishedListener = gameFinishedListener;
     }
 
     @Override
@@ -62,7 +68,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         updateThread = new UpdateThread(this);
         updateThread.setRunning(true);
         updateThread.start();
-        hero = new Hero(height);
+        hero = new Hero(height, heroListener);
         rectParallax = new Rect(0, parallax.getHeight() - height, width, parallax.getHeight());
         rectCanvas = new Rect(0, 0, width, height);
     }
@@ -107,7 +113,12 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             endGame(Boolean.TRUE);
         }
     };
-
+    private HeroListener heroListener = new HeroListener() {
+        @Override
+        public void explosionComplete(Hero hero) {
+            endGame(Boolean.FALSE);
+        }
+    };
     @Override
     protected void onDraw(Canvas canvas) {
         // you can always experiment by removing this line if you wish!
@@ -118,7 +129,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
             canvas.drawBitmap(parallax, rectParallax, rectCanvas, null);
         alien.draw(canvas);
         if (hero == null) {
-            hero = new Hero(canvas.getHeight());
+            hero = new Hero(canvas.getHeight(), heroListener);
         }
         hero.draw(canvas);
         for (Bullet bullet : bullets) {
@@ -142,8 +153,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
     private int parallaxCounter = 0;
 
     private void endGame(Boolean isWinner){
-        //TODO
-
+        gameFinishedListener.gameFinished(isWinner);
     }
 
     public void updatePhysics() {
@@ -175,6 +185,9 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                     Boolean isCollided = hero.isCollided(enemyBullet, false);
                     if (isCollided) {
                         hero.damage();
+                        if (hero.isKilled()){
+                            hero.explode();
+                        }
                     }
                     if (enemyBullet.getYPos() > rectCanvas.height() || isCollided) {
                         enemyBullets[index] = null;
@@ -183,8 +196,8 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
                 }
                 index++;
             }
-
-            hero.update(1);
+            if (hero != null)
+                hero.update(1);
             alien.update(1);
             Rect alienRect = alien.getBoundRect();
             if (alien.getXPos() + alienRect.width() / 2 > width)
@@ -223,66 +236,7 @@ public class MovementView extends SurfaceView implements SurfaceHolder.Callback,
         return true;
     }
 
-//    @Override
-//    public boolean onTouch(View arg0, MotionEvent arg1) {
-//
-//        switch (arg1.getAction()) {
-//            case MotionEvent.ACTION_DOWN: {
-//                if (gameOver != NOT_YET) {
-//                    reset();
-//                } else if (!hero.isKilled()){
-//
-//                    int x = Math.round(arg1.getX());
-//                    int y = Math.round(arg1.getY());
-//
-//                    boolean intersects = false;
-//
-//                    Rect longRect = new Rect(hero.getBoundRect());
-//
-//                    int width = longRect.width();
-//
-//                    if (x > longRect.right) {
-//                        longRect.right = x + width/2;
-//                    } else if (x < longRect.left){
-//                        longRect.left = x - width/2;
-//                    }
-//
-//                    //Let's calculate a collision
-//                    for (int i = 0; i < maxEnemyBullets; ++i) {
-//                        if (enemyBullets[i].isVisible()) {
-//                            if (Rect.intersects(longRect, enemyBullets[i].getBoundRect()) ) {
-//                                enemyBullets[i].setVisible(false);
-//                                hero.setPos(enemyBullets[i].getBoundRect().left, enemyBullets[i].getBoundRect().top);
-//                                hero.addDamage(enemyBullets[i].getPower());
-//
-//                                intersects = true;
-//                                break;
-//                            }
-//                        }
-//                    }
-//
-//                    if (!intersects) {
-//                        hero.setPos(x,y);
-//                        fireBullet();
-//                    }
-//                }
-//            }break;
-//
-//            case MotionEvent.ACTION_MOVE: {
-//                if (!hero.isKilled()){
-//                    hero.setPos(Math.round(arg1.getX()), Math.round(arg1.getY()));
-//                }
-//            }break;
-//
-//            case MotionEvent.ACTION_UP: {
-//            }
-//            case MotionEvent.ACTION_CANCEL: {
-//            }break;
-//
-//            default:
-//                return false;
-//        }
-//
-//        return true;
-//    }
+    public static interface GameFinishedListener {
+        public void gameFinished(boolean isWinner);
+    }
 }

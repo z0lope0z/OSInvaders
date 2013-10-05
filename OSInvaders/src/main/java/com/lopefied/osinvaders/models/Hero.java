@@ -25,17 +25,33 @@ public class Hero extends GameObject {
     private int maxFrames = 3;
     private int currentFrame = 0;
 
-    private int life = 3;
+    private int life = 2;
     private int hitTime = 20;
     private int hitCounter = 0;
     private Boolean isHit = Boolean.FALSE;
 
-    public Hero(int height) {
+    private HeroListener heroListener;
+    private Boolean isExploding = Boolean.FALSE;
+    private int explodeWidth = 256;
+    private int explodeHeight = 256;
+    private Bitmap explodeAnimation;
+    private Rect explodeSRectangle;
+    private int explodeFrames = 47;
+    private int explodeCurrentFrame = 0;
+
+    public Hero(int height, HeroListener heroListener) {
+        this.heroListener = heroListener;
         this.xPos = 10;
         this.yPos = height - 20;
         setBoundRect(xPos - width / 2, yPos - this.height, xPos + width / 2, yPos + this.height / 2);
         sRectangle = new Rect(0, 0, width, this.height);
         this.animation = Bitmaps.getBitmap(Bitmaps.HERO);
+        this.explodeAnimation = Bitmaps.getBitmap(Bitmaps.EXPLODE_SHIP);
+        explodeSRectangle = new Rect(0, 0, this.explodeWidth, this.explodeHeight);
+    }
+
+    public void explode() {
+        this.isExploding = Boolean.TRUE;
     }
 
     public void damage() {
@@ -43,13 +59,13 @@ public class Hero extends GameObject {
         isHit = Boolean.TRUE;
     }
 
-    public boolean isKilled(){
+    public boolean isKilled() {
         return life <= 0;
     }
 
-    private void resetHit(){
+    private void resetHit() {
         isHit = Boolean.FALSE;
-        hitCounter=0;
+        hitCounter = 0;
     }
 
     @Override
@@ -60,12 +76,17 @@ public class Hero extends GameObject {
 
     @Override
     public void draw(Canvas area) {
+        if (isExploding) {
+            Rect rect = new Rect(getXPos() - explodeWidth / 2, getYPos() - explodeHeight / 2, getXPos() + explodeWidth / 2 , getYPos() + explodeHeight/2);
+            area.drawBitmap(explodeAnimation, explodeSRectangle, rect, null);
+            return;
+        }
         circleRadius = 10;
         circlePaint = new Paint();
         circlePaint.setColor(Color.BLUE);
         Paint boundPaint = new Paint();
         boundPaint.setColor(Color.RED);
-        if (isHit){
+        if (isHit) {
             area.drawRect(getBoundRect(), boundPaint);
         }
         Rect rect = new Rect(getXLeftWing(), getYHead(), getXLeftWing() + width, getYHead() + height);
@@ -78,6 +99,23 @@ public class Hero extends GameObject {
 
     @Override
     public void update(long timeDelta) {
+        if (isExploding) {
+            // end game
+            if (explodeCurrentFrame > explodeFrames) {
+                heroListener.explosionComplete(this);
+            } else {
+                if ((frameTimer % 4) == 0) {
+                    explodeSRectangle.left = explodeCurrentFrame * explodeWidth;
+                    explodeSRectangle.top = 0;
+                    explodeSRectangle.right = explodeSRectangle.left + explodeWidth;
+                    explodeSRectangle.bottom = explodeHeight;
+                    explodeCurrentFrame++;
+                }
+            }
+            frameTimer++;
+            return;
+        }
+
         if (frameTimer % fps == 0) {
             sRectangle.left = currentFrame * width;
             sRectangle.right = sRectangle.left + width;
@@ -89,7 +127,7 @@ public class Hero extends GameObject {
         frameTimer++;
         //hit
         if (isHit) {
-            if (hitCounter < hitTime){
+            if (hitCounter < hitTime) {
                 hitCounter++;
             } else {
                 resetHit();

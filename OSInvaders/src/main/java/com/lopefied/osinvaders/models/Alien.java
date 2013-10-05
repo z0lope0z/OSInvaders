@@ -35,14 +35,10 @@ public class Alien extends GameObject {
     private int bulletInterval = 10;
 
     private int life = 2;
-    private int explodeTime = 33;
     private Boolean isExploding = Boolean.FALSE;
-    private int elapsedExplodingTime = 0;
     private int explodeWidth = 128;
     private int explodeHeight = 128;
     private Bitmap explodeAnimation;
-    private long explodeFrameTimer;
-    private int explodeFps = 10;
     private Rect explodeSRectangle;
     private int explodeFrames = 33;
     private int explodeCurrentFrame = 0;
@@ -120,7 +116,7 @@ public class Alien extends GameObject {
             if (explodeCurrentFrame > explodeFrames){
                 enemyListener.explosionComplete(this);
             } else {
-                if ((frameTimer % 5) == 0) {
+                if ((frameTimer % 4) == 0) {
                     explodeSRectangle.left = explodeCurrentFrame * explodeWidth;
                     explodeSRectangle.top = 0;
                     explodeSRectangle.right = explodeSRectangle.left + explodeWidth;
