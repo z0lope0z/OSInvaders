@@ -2,10 +2,10 @@ package com.lopefied.osinvaders;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
@@ -33,20 +33,28 @@ public class Movement extends Activity implements MovementView.GameFinishedListe
         return true;
     }
 
+    String title;
     String message;
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void gameFinished(boolean isWinner) {
-        message = "Congratulations! You win! :D";
-        if (!isWinner){
-            message = "Sorry! You lose! :(";
+        title = "Congratulations! You win! :D";
+        if (!isWinner) {
+            title = "Sorry! You lose! :(";
         }
+        message = " restarting game..";
         this.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                recreate();
+                Toast.makeText(getApplicationContext(), title + message, Toast.LENGTH_SHORT).show();
+                try {
+                    Thread.sleep(Toast.LENGTH_SHORT);
+                    recreate();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-        });
+        }
+        );
     }
 }
