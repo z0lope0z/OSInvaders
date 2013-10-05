@@ -44,12 +44,9 @@ public class Movement extends Activity implements MovementView.GameFinishedListe
         }
         this.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                 recreate();
             }
         });
-//        Intent intent = getIntent();
-//        finish();
-//        startActivity(intent);
     }
 }
