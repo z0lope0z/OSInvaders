@@ -3,6 +3,7 @@ OSInvaders
 
 Synchronization is in OSInvaders/src/main/java/com/lopefied/osinvaders/views/MovementView.java
 
+```java
 // snippet
 synchronized (this) {
     int index = 0;
@@ -26,3 +27,4 @@ synchronized (this) {
         index++;
     }
 }
+```
